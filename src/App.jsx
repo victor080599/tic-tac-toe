@@ -6,8 +6,16 @@ import { checkWinner } from "./logic/board";
 import { WinnerModal } from "./components/WinnerModal";
 
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null));
-  const [turn, setTurn] = useState(TURNS.x);
+  // const [board, setBoard] = useState(Array(9).fill(null));
+  const [board, setBoard] = useState(()=>{
+    const boardFromStorage = localStorage.getItem('board')
+    return boardFromStorage ? JSON.parse(boardFromStorage) : Array(9).fill(null)
+  })
+  // const [turn, setTurn] = useState(TURNS.x);
+  const [turn, setTurn] = useState(()=>{
+    const turnFromStorage = localStorage.getItem('turn')
+    return turnFromStorage ?? TURNS.x
+  });
   const [winner, setWinner] = useState(null);
 
   const updateBoard = (index) => {
@@ -19,6 +27,9 @@ function App() {
 
     const newTurn = turn === TURNS.x ? TURNS.o : TURNS.x;
     setTurn(newTurn);
+
+    localStorage.setItem('board', JSON.stringify(newBoard))
+    localStorage.setItem('turn', newTurn)
 
     const newWinner = checkWinner(newBoard)
     if(newWinner){
@@ -32,6 +43,8 @@ function App() {
     setBoard(Array(9).fill(null))
     winner === null ? setTurn(TURNS.x) : setTurn(turn)
     setWinner(null)
+    localStorage.removeItem('board')
+    localStorage.removeItem('turn')
   }
 
   return (
@@ -54,7 +67,7 @@ function App() {
       </section>
 
       <WinnerModal winner={winner} resetGame={resetGame}/>
-      
+
     </main>
   );
 }
